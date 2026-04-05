@@ -4,15 +4,56 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <title>PokemonGame</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" />
         <link rel="stylesheet" href="style.css" />
     </head>
-    <style>
-    body {
-        background-color: black;
-    }
-</style>
-<canvas></canvas>
+   <body>
+    <div class="container" >
+         <div id="overlappingDiv" class="overlappingDiv">
+
+         </div>
+         <canvas></canvas>
+
+         <div id="characterDialogueBox" class="characterDialogueBox"> 
+         </div>
+
+         <div id="userInterface" class="userInterface">
+            <div class="enemyPanel">
+                <h1 class="draggle">Draggle</h1>
+                <div class="healthTrack">
+                    <div class="healthTrackBackground"></div>
+                        <div id="enemyHealthBar" class="enemyHealthBar">
+                    </div>
+                </div>
+            </div>
+
+            <div class="playerPanel">
+               <h1 class="emby">Emby</h1>
+               <div class="healthTrack">
+                  <div class="healthTrackBackground"></div>
+                  <div class="playerHealthBar" id="playerHealthBar"></div>
+               </div> 
+            </div>
+            <div class="battlePanel">
+                <div id="dialogueBox" class="dialogueBox">  
+                </div>
+                <div id="attackBox" class="attackBox"></div>
+
+                <div class="attackTypePanel">
+                    <h1 id="attackType" class="attackType">Attack Type</h1>
+                </div>
+            </div>
+         </div>
+    </div>
+   </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"
+  integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA=="
+  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="data/collision.js"></script>
 <script src="classes.js"></script>
+<script src="battlescenes.js"></script>
 <script src="index.js"></script>
 </html>

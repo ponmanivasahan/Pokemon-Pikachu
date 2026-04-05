@@ -1,7 +1,24 @@
 const canvas=document.querySelector('canvas')
 const c=canvas.getContext('2d')
-canvas.width=1525
-canvas.height=680
+const GAME_WIDTH = 1525
+const GAME_HEIGHT = 680
+
+canvas.width = GAME_WIDTH
+canvas.height = GAME_HEIGHT
+
+function resizeCanvasDisplay() {
+    const horizontalPadding = 16
+    const verticalPadding = 16
+    const maxWidth = window.innerWidth - horizontalPadding
+    const maxHeight = window.innerHeight - verticalPadding
+    const scale = Math.min(maxWidth / GAME_WIDTH, maxHeight / GAME_HEIGHT, 1)
+
+    canvas.style.width = `${Math.floor(GAME_WIDTH * scale)}px`
+    canvas.style.height = `${Math.floor(GAME_HEIGHT * scale)}px`
+}
+
+resizeCanvasDisplay()
+window.addEventListener('resize', resizeCanvasDisplay)
 
 const collisionsMap=[];
 for(let i=0;i<collisions.length;i+=70){

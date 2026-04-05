@@ -12,8 +12,13 @@ class Sprite{
         this.sprites=Sprites;
     }
     draw(){
+        if (!this.image.complete || this.image.naturalWidth === 0) return;
+
         c.drawImage(
-            this.image,0,0,this.image.width/this.frames.max,
+            this.image,
+            this.frames.val * (this.image.width / this.frames.max),
+            0,
+            this.image.width/this.frames.max,
             this.image.height,this.position.x,this.position.y,
             this.image.width/this.frames.max,
             this.image.height,
