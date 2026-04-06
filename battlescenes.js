@@ -35,7 +35,7 @@ function initBattle(){
             emby.attack({
                 attack:selectedAttack,
                 recipient:draggle,
-                renderSprites
+                renderedSprites:renderSprites
             })
           
               if(draggle.health<=0){
@@ -55,7 +55,7 @@ function initBattle(){
                             })
                             battle.initiated=false
                     //feature to come
-
+                           if (typeof audio !== 'undefined') audio.Map?.play?.()
                         }
                     })
                 })
@@ -67,7 +67,7 @@ function initBattle(){
                 draggle.attack({
                     attack:randomAttack,
                     recipient:emby,
-                    renderSprites
+                    renderedSprites:renderSprites
                 })
                 if(emby.health<=0){
                     queue.push(()=>{
@@ -85,7 +85,7 @@ function initBattle(){
                                     opacity:0
                                 })
                                 battle.initiated=false
-
+                               if (typeof audio !== 'undefined') audio.Map?.play?.()
                             }
                         })
                     })

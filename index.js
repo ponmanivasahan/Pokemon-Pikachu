@@ -219,23 +219,30 @@ animate();
 
 let lastKey = '';
 
+function setMovementKey(key) {
+    if (!keys[key]) return;
+    keys[key].pressed = true;
+    lastKey = key;
+}
+
+function clearMovementKey(key) {
+    if (!keys[key]) return;
+    keys[key].pressed = false;
+}
+
 window.addEventListener('keydown', (e) => {
     switch (e.key) {
         case 'w':
-            keys.w.pressed = true;
-            lastKey = 'w';
+            setMovementKey('w');
             break;
         case 'a':
-            keys.a.pressed = true;
-            lastKey = 'a';
+            setMovementKey('a');
             break;
         case 's':
-            keys.s.pressed = true;
-            lastKey = 's';
+            setMovementKey('s');
             break;
         case 'd':
-            keys.d.pressed = true;
-            lastKey = 'd';
+            setMovementKey('d');
             break;
     }
     console.log(keys);
@@ -243,17 +250,39 @@ window.addEventListener('keydown', (e) => {
 window.addEventListener('keyup', (e) => {
     switch (e.key) {
         case 'w':
-            keys.w.pressed = false;
+            clearMovementKey('w');
             break;
         case 'a':
-            keys.a.pressed = false;
+            clearMovementKey('a');
             break;
         case 's':
-            keys.s.pressed = false;
+            clearMovementKey('s');
             break;
         case 'd':
-            keys.d.pressed = false;
+            clearMovementKey('d');
             break;
     }
     console.log(keys);
+});
+
+const controlButtons = document.querySelectorAll('#mobileControls .controlButton');
+
+controlButtons.forEach((button) => {
+    const key = button.dataset.key;
+    if (!key) return;
+
+    button.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        setMovementKey(key);
+        button.classList.add('active');
+    });
+
+    const release = () => {
+        clearMovementKey(key);
+        button.classList.remove('active');
+    };
+
+    button.addEventListener('pointerup', release);
+    button.addEventListener('pointercancel', release);
+    button.addEventListener('pointerleave', release);
 });
