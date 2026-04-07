@@ -7,7 +7,7 @@ function rectangularCollision({rectangle1,rectangle2}){
     )
 }
 
-function checkForCharacterCollision({characters,players,characterOffset={x:0,y:0}}){
+function checkForCharacterCollision({characters,player,characterOffset={x:0,y:0}}){
     player.interactionAsset=null
     for(let i=0;i<characterOffset.length;i++){
         const character=character[i]
