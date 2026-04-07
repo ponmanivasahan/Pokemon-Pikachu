@@ -14,5 +14,6 @@ const monster={
         animate:true,
         name:'Emby',
         attacks:[attacks.Tackle,attacks.Fireball]
-    }
+    },
+    
 }
