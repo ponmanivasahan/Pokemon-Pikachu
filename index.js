@@ -5,8 +5,12 @@ c.webkitImageSmoothingEnabled=false
 c.mozImageSmoothingEnabled=false
 c.msImageSmoothingEnabled=false
 
-canvas.width = 1024
-canvas.height = 576
+const GAME_WIDTH = 1590
+const GAME_HEIGHT = 750
+
+canvas.width = GAME_WIDTH
+canvas.height = GAME_HEIGHT
+
 
 function resizeCanvasDisplay() {
     const horizontalPadding = 16
