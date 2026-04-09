@@ -54,20 +54,50 @@
         <button class="controlButton down" data-key="s" aria-label="Move down">S</button>
         <button class="controlButton right" data-key="d" aria-label="Move right">D</button>
     </div>
+
+     <button class="help-toggle" onclick="toggleHelp()">How to Play</button>
+       <div class="overlay-bg" id="helpOverlay" onclick="toggleHelp()"></div>
+
+      <div class="help-panel" id="helpPanel">
+        <button class="close-help" onclick="toggleHelp()">X EXIT</button>
+       <h2>Game Controls</h2>
+
+        <h3>MOVEMENT</h3>
+        <p><span class="key">W</span> - Move Up</p>
+        <p><span class="key">A</span> - Move Left</p>
+        <p><span class="key">S</span> - Move Down</p>
+        <p><span class="key">D</span> - Move Right</p>
+
+       <h3>MOBILE CONTROLS</h3>
+       <p>Use the on-screen direction buttons on small screens.</p>
+       </div>
+
+    <script>
+      function toggleHelp() {
+        const panel = document.getElementById('helpPanel')
+        const overlay = document.getElementById('helpOverlay')
+
+        const shouldOpen = panel.style.display === 'none' || panel.style.display === ''
+        panel.style.display = shouldOpen ? 'block' : 'none'
+        overlay.style.display = shouldOpen ? 'block' : 'none'
+      }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"
+      integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA=="
+      crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"
+      integrity="sha512-H6cPm97FAsgIKmlBA4s774vqoN24V5gSQL4yBTDOY2su2DeXZVhQPxFK4P6GPdnZqM9fg1G3cMv5wD7e6cFLZQ=="
+      crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./data/battlezones.js"></script>
+    <script src="./data/collision.js"></script>
+    <script src="./data/attack.js"></script>
+    <script src="./data/monster.js"></script>
+    <script src="./data/trainers.js"></script>
+    <script src="./data/characters.js"></script>
+    <script src="./classes.js"></script>
+    <script src="./index.js"></script>
+    <script src="./battlescenes.js"></script>
    </body>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"
-  integrity="sha512-6+YN/9o9BWrk6wSfGxQGpt3EUK6XeHi6yeHV+TYD2GR0Sj/cggRpXr1BrAQf0as6XslxomMUxXp2vIl+fv0QRA=="
-  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"
-  integrity="sha512-H6cPm97FAsgIKmlBA4s774vqoN24V5gSQL4yBTDOY2su2DeXZVhQPxFK4P6GPdnZqM9fg1G3cMv5wD7e6cFLZQ=="
-  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="./js/utils.js"></script>  
-<script src="./data/battlezones.js"></script>
-<script src="./data/collision.js"></script>
-<script src="./data/attack.js"></script>
-<script src="./data/monster.js"></script>
-<script src="./data/monster.js"></script>
-<script src="./classes.js"></script>
-<script src="index.js"></script>
-<script src="battlescenes.js"></script>
 </html>

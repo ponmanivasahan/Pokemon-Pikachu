@@ -1,10 +1,12 @@
 const canvas=document.querySelector('canvas')
 const c=canvas.getContext('2d')
-const GAME_WIDTH = 1525
-const GAME_HEIGHT = 680
+c.imageSmoothingEnabled=false
+c.webkitImageSmoothingEnabled=false
+c.mozImageSmoothingEnabled=false
+c.msImageSmoothingEnabled=false
 
-canvas.width = GAME_WIDTH
-canvas.height = GAME_HEIGHT
+canvas.width = 1024
+canvas.height = 576
 
 function resizeCanvasDisplay() {
     const horizontalPadding = 16
@@ -15,6 +17,12 @@ function resizeCanvasDisplay() {
 
     canvas.style.width = `${Math.floor(GAME_WIDTH * scale)}px`
     canvas.style.height = `${Math.floor(GAME_HEIGHT * scale)}px`
+
+    const container = document.querySelector('.container')
+    if (container) {
+        container.style.width = canvas.style.width
+        container.style.height = canvas.style.height
+    }
 }
 
 resizeCanvasDisplay()
@@ -25,11 +33,18 @@ for(let i=0;i<collisions.length;i+=70){
     collisionsMap.push(collisions.slice(i,70+i));
 }
 
+const battleZonesMap = [];
+for (let i = 0; i < battleZones.length; i += 70) {
+    battleZonesMap.push(battleZones.slice(i, 70 + i));
+}
+
 const boundaries=[];
 c.fillStyle='white';
 
-const offset={x:-735,y:-650};
+const worldOffset={x:-750,y:-550};
 c.fillRect(0,0,canvas.width,canvas.height)
+
+const battleZoneAreas = [];
 
 
 collisionsMap.forEach((row,i)=>{
@@ -38,11 +53,26 @@ collisionsMap.forEach((row,i)=>{
             boundaries.push(
         new Boundary({
             position:{
-                x:j*Boundary.width+offset.x,
-                y:i*Boundary.height+offset.y,
+                x:j*Boundary.width+worldOffset.x,
+                y:i*Boundary.height+worldOffset.y,
             },
         }))
     })
+});
+
+battleZonesMap.forEach((row, i) => {
+    row.forEach((symbol, j) => {
+        if (symbol === 1025) {
+            battleZoneAreas.push(
+                new Boundary({
+                    position: {
+                        x: j * Boundary.width + worldOffset.x,
+                        y: i * Boundary.height + worldOffset.y
+                    }
+                })
+            );
+        }
+    });
 });
 
 const image=new Image()
@@ -50,10 +80,6 @@ image.src='./images/town.png'
 
 const foregroundImage=new Image();
 foregroundImage.src='./images/foregroundObjects.png';
-
-image.onload=()=>{
-    c.drawImage(image,-750,-550);
-}
 
 const playerImage=new Image();
 playerImage.src='./images/playerDown.png';
@@ -72,15 +98,16 @@ const player=new Sprite({
 
 const background=new Sprite({
     position:{
-        x:-738,
-        y:-605,
+        x:worldOffset.x,
+        y:worldOffset.y,
     },
     image:image,
 });
 
 const foreground=new Sprite({
     position:{
-        x:offset.x,y:offset.y,
+        x:worldOffset.x,
+        y:worldOffset.y,
     },
     image:foregroundImage,
 })
@@ -91,7 +118,10 @@ const keys={
     d:{pressed:false},
 };
 
-const movables=[background,foreground,...boundaries];
+const movables=[background,foreground,...boundaries, ...battleZoneAreas];
+const battle={
+    initiated:false,
+};
 
 
 function rectangularCollision({ rectangle1, rectangle2 }) {
@@ -103,7 +133,7 @@ function rectangularCollision({ rectangle1, rectangle2 }) {
     );
 }
 function animate() {
-    window.requestAnimationFrame(animate);
+    const animationId = window.requestAnimationFrame(animate);
     background.draw();
     boundaries.forEach((boundary) => {
         boundary.draw();
@@ -111,6 +141,57 @@ function animate() {
 
     player.draw();
     foreground.draw();
+
+    if (battle.initiated) return;
+
+    if (keys.w.pressed || keys.a.pressed || keys.s.pressed || keys.d.pressed) {
+        for (let i = 0; i < battleZoneAreas.length; i++) {
+            const battleZone = battleZoneAreas[i];
+            const overlappingWidth =
+                Math.min(
+                    player.position.x + player.width,
+                    battleZone.position.x + battleZone.width
+                ) - Math.max(player.position.x, battleZone.position.x);
+            const overlappingHeight =
+                Math.min(
+                    player.position.y + player.height,
+                    battleZone.position.y + battleZone.height
+                ) - Math.max(player.position.y, battleZone.position.y);
+            const overlappingArea = Math.max(0, overlappingWidth) * Math.max(0, overlappingHeight);
+
+            if (
+                rectangularCollision({ rectangle1: player, rectangle2: battleZone }) &&
+                overlappingArea > (player.width * player.height) / 2 &&
+                Math.random() < 0.01
+            ) {
+                window.cancelAnimationFrame(animationId);
+                battle.initiated = true;
+
+                gsap.to('#overlappingDiv', {
+                    opacity: 1,
+                    repeat: 3,
+                    yoyo: true,
+                    duration: 0.35,
+                    onComplete() {
+                        gsap.to('#overlappingDiv', {
+                            opacity: 1,
+                            duration: 0.25,
+                            onComplete() {
+                                initBattle();
+                                animateBattle();
+                                gsap.to('#overlappingDiv', {
+                                    opacity: 0,
+                                    duration: 0.35
+                                });
+                            }
+                        });
+                    }
+                });
+                break;
+            }
+        }
+    }
+
     let moving=true;
     if (keys.w.pressed && lastKey === 'w') {
         for(let i=0;i<boundaries.length;i++){
