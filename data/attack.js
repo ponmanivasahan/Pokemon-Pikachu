@@ -1,104 +1,65 @@
-const attacks={
-    Tackle:{
-        name:'Tackle',
-        damage:10,
-        type:'Normal',
-        color:'black'
-    },
-    Fireball:{
-        name:'Fireball',
-        kind:'damage',
-        damage:25,
-        type:'Fire',
-        color:'red',
-        effect:'fire'
-    },
-    FlameBurst:{
-        yj:'Flame Burst',
-        kind:'damage',
-        damage:26,
-        type:'Fire',
-        color:'#ff6a2b',
-        effect:'fire'
-    },
-    BlazingGuard:{
-        name:'Blazing Guard',
-        kind:'shield',
-        shield:18,
-        type:'Shield',
-        color:'#ff9c45',
-        effect:shield
-    },
-    CinderHeal:{
-        name:'Cinder Heal',
-        kind:'heal',
-        heal:20,
-        type: 'Heal',
-        color:'#ffb07a',
-        effect:'heal'
-    },
-    ShockWave:{
-        name: 'Shock Wave',
-        kind:'damage',
-        damage:20,
-        type:'Electric',
-        color:'#1f6cff',
-        effect:'shock'
-    },
-    AquaJet:{
-        name:'Aqua Jet',
-        kind:'damage',
-        damage:16,
-        type:'Water',
-        color:'#2fbcff',
-        effect:'water'
-    },
-    BubbleBarrier:{
-        name:'Bubble Barrier',
-        kind:'shield',
-        shield:22,
-        type:'Shield',
-        color:'#4eb7ff',
-        effect:'shield'
-    },
-    TidalRecover:{
-        name:'Tidal Recover',
-        kind:'heal',
-        type:'Heal',
-        heal:18,
-        color:'#5cd2ff',
-        effect:'heal'
-    },
-    PoisonStink:{
-        name:'Poison Stink',
-        kind:'damage',
-        damage:18,
-        type:'Poison',
-        color:'#1ea54b',
-        effect:'poison'
-    },
-    VineWhip:{
-        name:'Vine Whip',
-        kind:'damage',
-        damage:15,
-        type:'Grass',
-        color:'#2cae44',
-        effect:'tackle'
-    },
-    LeafGuard:{
-        name:'leaf Guard',
-        kind:'shield',
-        shield:20,
-        type:'Shield',
-        color:'#5dbb3c',
-        effect:'shield'
-    },
-    NatureMend:{
-        name:'Nature Mend',
-        kind:'heal',
-        heal:22,
-        type:'Heal',
-        color:'#63c66e',
-        effect:'heal'
+const attacks = {
+  Tackle: {
+    name: 'Tackle',
+    damage: 12,
+    type: 'Normal',
+    color: '#222'
+  },
+  Fireball: {
+    name: 'Fireball',
+    damage: 24,
+    type: 'Fire',
+    color: '#e74c3c',
+    cooldown: 1,
+    statusEffect: {
+      type: 'burn',
+      chance: 0.35,
+      duration: 3
     }
+  },
+  PoisonSting: {
+    name: 'PoisonSting',
+    damage: 10,
+    type: 'Poison',
+    color: '#8e44ad',
+    cooldown: 1,
+    statusEffect: {
+      type: 'poison',
+      chance: 0.45,
+      duration: 4
+    }
+  },
+  ThunderShock: {
+    name: 'ThunderShock',
+    damage: 11,
+    type: 'Electric',
+    color: '#f1c40f',
+    cooldown: 2,
+    statusEffect: {
+      type: 'stun',
+      chance: 0.3,
+      duration: 1
+    }
+  },
+  IronGuard: {
+    name: 'IronGuard',
+    damage: 0,
+    type: 'Steel',
+    color: '#7f8c8d',
+    cooldown: 2,
+    selfEffect: {
+      defenseBuff: {
+        stages: 1,
+        duration: 3
+      }
+    }
+  },
+  Recover: {
+    name: 'Recover',
+    damage: 0,
+    type: 'Support',
+    color: '#2ecc71',
+    cooldown: 3,
+    heal: 28
+  }
 }

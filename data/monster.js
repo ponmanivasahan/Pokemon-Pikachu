@@ -1,4 +1,4 @@
-const monster={
+const monsters = {
     Emby:{
         position:{
             x:250,
@@ -55,9 +55,11 @@ const monster={
             max: 4,
             hold:30
         },
-        animate:[
+        animate:true,
+        name:'Bulbasaur',
+        attacks:[
             attacks.Tackle,
-            attacks.PoisonString,
+            attacks.PoisonSting,
             attacks.IronGuard,
             attacks.Recover
         ]
@@ -89,7 +91,7 @@ const monster={
             y:100
         },
         image:{
-            src:'./images/draggleSprite.png'
+            src:'./images/draggableSprite.png'
         },
         frames:{
             max:4,
@@ -109,7 +111,7 @@ const monster={
             y:100
         },
         image:{
-            src:'./images/draggleSprite.png'
+            src:'./images/draggableSprite.png'
         },
         frames:{
             max:4,
@@ -126,7 +128,7 @@ const monster={
             y:100
         },
         image:{
-            src: './images/draggleSprite.png'
+            src: './images/draggableSprite.png'
         },
         frames:{
             max:4,
@@ -143,3 +145,5 @@ const monster={
     }
     
 }
+
+const monster = monsters
