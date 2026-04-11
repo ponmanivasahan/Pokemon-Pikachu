@@ -1,12 +1,36 @@
 const battleBackgroundImage = new Image()
 battleBackgroundImage.src = './images/battleBackground.png'
-const battleBackground = new Sprite({
-  position: {
-    x: 0,
-    y: 0
-  },
-  image: battleBackgroundImage
-})
+const battleBackgroundBaseWidth = 1024
+const battleBackgroundBaseHeight = 576
+
+let battleBackground = null
+
+function setupBattleBackground() {
+  try {
+    const battleBackgroundScale = Math.max(
+      canvas.width / battleBackgroundBaseWidth,
+      canvas.height / battleBackgroundBaseHeight
+    )
+    
+    if (battleBackground) {
+      battleBackground.scale = battleBackgroundScale
+      battleBackground.position.y = -((battleBackgroundBaseHeight * battleBackgroundScale - canvas.height) / 2)
+    } else {
+      battleBackground = new Sprite({
+        position: {
+          x: 0,
+          y: -((battleBackgroundBaseHeight * battleBackgroundScale - canvas.height) / 2)
+        },
+        image: battleBackgroundImage,
+        scale: battleBackgroundScale
+      })
+    }
+  } catch (error) {
+    console.error('Battle background setup failed:', error)
+  }
+}
+
+setupBattleBackground()
 
 let draggle
 let emby
@@ -103,11 +127,41 @@ function setStyleIfExists(selector, property, value) {
   }
 }
 
+function setBattleModeActive(active) {
+  if (!document.body) return
+  document.body.classList.toggle('is-in-battle', active)
+}
+
+function getBattleMonsterPositions() {
+  const isMobile = window.matchMedia('(max-width: 560px)').matches
+
+  const enemyX = Math.round(canvas.width * (isMobile ? 0.64 : 0.67))
+  const enemyY = Math.round(canvas.height * (isMobile ? 0.1 : 0.14))
+  const playerX = Math.round(canvas.width * (isMobile ? 0.16 : 0.2))
+  const playerY = Math.round(canvas.height * (isMobile ? 0.44 : 0.48))
+
+  return {
+    enemy: { x: enemyX, y: enemyY },
+    player: { x: playerX, y: playerY }
+  }
+}
+
+function syncBattleMonsterPositions() {
+  const positions = getBattleMonsterPositions()
+  if (draggle) {
+    draggle.position = { x: positions.enemy.x, y: positions.enemy.y }
+  }
+  if (emby) {
+    emby.position = { x: positions.player.x, y: positions.player.y }
+  }
+}
+
 function exitBattleToMap() {
   gsap.to('#overlappingDiv', {
     opacity: 1,
     onComplete: () => {
       cancelAnimationFrame(battleAnimationId)
+      setBattleModeActive(false)
       animate()
       setDisplayIfExists('#userInterface', 'none')
       setDisplayIfExists('#partyDisplay', 'none')
@@ -309,6 +363,7 @@ function handleAttackButtonClick(selectedAction) {
             setDisplayIfExists('#partyDisplay', 'none')
             gsap.to('#overlappingDiv', { opacity: 0 })
             battle.initiated = false
+            setBattleModeActive(false)
             audio.Map.play()
           }
         })
@@ -329,8 +384,8 @@ function handleAttackButtonClick(selectedAction) {
       if (isTrainerBattle && trainerEnemyIndex < trainerEnemyParty.length - 1) {
         trainerEnemyIndex++
         draggle = trainerEnemyParty[trainerEnemyIndex]
-        draggle.position = { x: 800, y: 100 }
         draggle.opacity = 1
+        syncBattleMonsterPositions()
         renderedSprites[0] = draggle
 
         document.querySelector('#userInterface').querySelector('h1').innerHTML =
@@ -389,6 +444,7 @@ function handleAttackButtonClick(selectedAction) {
           })
 
           battle.initiated = false
+          setBattleModeActive(false)
           audio.Map.play()
         }
       })
@@ -508,6 +564,7 @@ function bindAttackButtonHandlers() {
                 setDisplayIfExists('#partyDisplay', 'none')
                 gsap.to('#overlappingDiv', { opacity: 0 })
                 battle.initiated = false
+                setBattleModeActive(false)
                 audio.Map.play()
               }
             })
@@ -531,8 +588,8 @@ function bindAttackButtonHandlers() {
           ) {
             trainerEnemyIndex++
             draggle = trainerEnemyParty[trainerEnemyIndex]
-            draggle.position = { x: 800, y: 100 }
             draggle.opacity = 1
+            syncBattleMonsterPositions()
             renderedSprites[0] = draggle
 
             document
@@ -593,6 +650,7 @@ function bindAttackButtonHandlers() {
               })
 
               battle.initiated = false
+              setBattleModeActive(false)
               audio.Map.play()
             }
           })
@@ -764,6 +822,7 @@ function queueEnemyAttackTurn() {
               })
 
               battle.initiated = false
+              setBattleModeActive(false)
               audio.Map.play()
             }
           })
@@ -781,6 +840,9 @@ function initBattle(options) {
   }
   trainerEnemyParty = []
   trainerEnemyIndex = 0
+  setBattleModeActive(true)
+  
+  setupBattleBackground()
 
   setDisplayIfExists('#userInterface', 'block')
   setDisplayIfExists('#partyDisplay', 'block')
@@ -832,6 +894,7 @@ function initBattle(options) {
     draggle.maxHealth = draggle.health
   }
   emby = getActivePlayerMonster()
+  syncBattleMonsterPositions()
   const userInterface = document.querySelector('#userInterface')
   if (userInterface) {
     const headers = userInterface.querySelectorAll('h1')
@@ -859,10 +922,18 @@ function initBattle(options) {
 
 function animateBattle() {
   battleAnimationId = window.requestAnimationFrame(animateBattle)
-  battleBackground.draw()
+  
+  c.fillStyle = '#000'
+  c.fillRect(0, 0, canvas.width, canvas.height)
+  
+  if (battleBackground && battleBackground.image && battleBackground.image.complete) {
+    battleBackground.draw()
+  }
 
   renderedSprites.forEach((sprite) => {
-    sprite.draw()
+    if (sprite && sprite.image && sprite.image.complete) {
+      sprite.draw()
+    }
   })
 }
 if (!hasLoadedSave) {
@@ -873,14 +944,21 @@ if (playerParty.length === 0) {
 }
 animate()
 
+window.addEventListener('resize', () => {
+  if (!battle.initiated) return
+  setupBattleBackground()
+  syncBattleMonsterPositions()
+  updateHealthDisplay()
+})
+
 function activatePartyMonster(targetIndex) {
   const targetMonster = playerParty[targetIndex]
   if (!targetMonster || targetMonster.health <= 0) return false
 
   currentPartyIndex = targetIndex
   emby = targetMonster
-  emby.position = { x: 280, y: 325 }
   emby.opacity = 1
+  syncBattleMonsterPositions()
   renderedSprites[1] = emby
 
   const userInterface = document.querySelector('#userInterface')

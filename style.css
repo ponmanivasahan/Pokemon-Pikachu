@@ -5,8 +5,8 @@
 body{
     background: #000;
     margin: 0;
-    min-height: 100vh;
     width: 100%;
+    height: 100vh;
     overflow: hidden;
     padding: 0;
     display: flex;
@@ -29,8 +29,8 @@ button:hover{
     position: relative;
     width: min(100vw, 1024px);
     height: min(100vh, 576px);
-    max-width: calc(100vw - 16px);
-    max-height: calc(100vh - 16px);
+    max-width: calc(100vw - 8px);
+    max-height: calc(100vh - 8px);
     overflow: hidden;
     box-shadow: none;
     background: transparent;
@@ -102,9 +102,9 @@ canvas{
 }
 .playerPanel{
     background: linear-gradient(180deg, #ffffff 0%, #f1f5fb 100%);
-    width: clamp(180px, 28vw, 250px);
+    width: clamp(220px, 32vw, 300px);
     position: absolute;
-    bottom: clamp(150px, 20vw, 190px);
+    bottom: clamp(190px, 26vw, 250px);
     right: clamp(16px, 4vw, 50px);
     border: 4px solid #1c2638;
     border-radius: 8px;
@@ -125,7 +125,7 @@ canvas{
 }
 .battlePanel{
     background: linear-gradient(180deg, #fefefe 0%, #edf3ff 100%);
-    height: clamp(120px, 20vw, 140px);
+    height: clamp(170px, 24vw, 220px);
     position: absolute;
     bottom: 0;
     left: 0;
@@ -147,7 +147,7 @@ canvas{
     line-height: 1.6;
 }
 .attackBox{
-    width: 66.66%;
+    width: 70%;
     display: grid;
     grid-template-columns: repeat(2,1fr);
     gap: 8px;
@@ -155,25 +155,38 @@ canvas{
 }
 
 .attackBox button{
-    border: 2px solid #1f2a3d;
+    border: 2px solid #1b3357;
     margin: 0;
-    border-radius: 10px;
-    font-size: 11px;
+    border-radius: 14px;
+    font-size: 10px;
     line-height: 1.3;
-    padding: 10px 8px;
-    color: #11203b;
-    background: linear-gradient(180deg, #ffffff 0%, #e9f0ff 100%);
-    box-shadow: 0 3px 0 #bcc8df;
+    padding: 9px 8px;
+    color: #0a1f3f;
+    background: linear-gradient(180deg, #ffffff 0%, #cfe2ff 100%);
+    box-shadow: 0 4px 0 #9db9e6;
+    letter-spacing: 0.4px;
     transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
 }
 
 .attackBox button:hover{
-    background: linear-gradient(180deg, #fff9d7 0%, #ffe89d 100%);
+    background: linear-gradient(180deg, #fff6d4 0%, #ffc94f 100%);
+    transform: translateY(-1px);
 }
 
 .attackBox button:active{
     transform: translateY(1px);
-    box-shadow: 0 2px 0 #bcc8df;
+    box-shadow: 0 2px 0 #9db9e6;
+}
+
+.attackBox button[data-attack-name="Run"]{
+    background: linear-gradient(180deg, #ffe7e2 0%, #ffb7a8 100%);
+    border-color: #7a2b1d;
+    color: #4b140b;
+    box-shadow: 0 4px 0 #d38978;
+}
+
+body.is-in-battle #mobileControls{
+    display: none !important;
 }
 
 .attackBox button:disabled{
@@ -186,7 +199,7 @@ canvas{
     display: flex;
     align-items:center;
     justify-content: center;
-    width: 33.33%;
+    width: 30%;
     border-left: 4px solid #1c2638;
     background: linear-gradient(180deg, #f5f9ff 0%, #e8f0ff 100%);
 }
@@ -200,7 +213,7 @@ canvas{
     display: none;
     width: min(280px, 90vw);
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, 48px);
+    grid-template-rows: repeat(2, 42px);
     grid-template-areas:
         ". up ."
         "left down right";
@@ -212,7 +225,7 @@ canvas{
     border: 3px solid #16243b;
     background: linear-gradient(180deg, #ffffff 0%, #deebff 100%);
     color: #0f1f39;
-    font-size: 14px;
+    font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -345,24 +358,24 @@ canvas{
     border-radius: 12px;
     background: linear-gradient(180deg, #f6fbff 0%, #dfeeff 100%);
     box-shadow: 0 20px 42px rgba(0, 0, 0, 0.35);
-    padding: 18px;
+    padding: 20px;
     color: #10203c;
 }
 
 .battle-prompt-panel h3{
     margin: 0 0 10px 0;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 .battle-prompt-panel p{
     margin: 0 0 16px 0;
-    font-size: 10px;
+    font-size: 11px;
     line-height: 1.6;
 }
 
 .battle-prompt-actions{
     display: flex;
-    gap: 10px;
+    gap: 12px;
     justify-content: flex-end;
     flex-wrap: wrap;
 }
@@ -370,10 +383,23 @@ canvas{
 .battle-prompt-actions button{
     border: 3px solid #172741;
     border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 10px;
+    padding: 9px 12px;
+    font-size: 11px;
     color: #0f1f39;
     background: linear-gradient(180deg, #ffffff 0%, #deebff 100%);
+    min-height: 36px;
+    cursor: pointer;
+    flex: 1;
+    transition: all 0.2s ease;
+}
+
+.battle-prompt-actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.battle-prompt-actions button:active {
+    transform: translateY(0);
 }
 
 .battle-prompt-actions button:last-child{
@@ -391,10 +417,9 @@ canvas{
 
     .container{
         width: 100vw;
-        height: calc(100vh - 78px);
+        height: 100vh;
         max-width: 100vw;
-        max-height: calc(100vh - 78px);
-        box-shadow: none;
+        max-height: 100vh;
     }
 
     button{
@@ -409,29 +434,66 @@ canvas{
 
     .enemyPanel,
     .playerPanel{
+        width: clamp(170px, 34vw, 240px);
         padding: 10px;
         border-width: 3px;
     }
 
+    .playerPanel{
+        bottom: clamp(200px, 31vw, 250px);
+    }
+
     .battlePanel{
         border-top-width: 3px;
+        height: clamp(190px, 34vw, 250px);
     }
 
     .attackTypePanel{
         border-left-width: 3px;
+        width: 32%;
+    }
+
+    .attackBox{
+        width: 68%;
+    }
+
+    .attackBox button{
+        font-size: 10px;
+        padding: 8px 7px;
     }
 }
 
 @media (max-width: 560px){
-    .container{
-        height: calc(100vh - 96px);
-        max-height: calc(100vh - 96px);
+    body {
+        overflow: hidden;
     }
 
     .battlePanel{
         display: block;
         height: auto;
-        min-height: 110px;
+        min-height: 230px;
+    }
+
+    .enemyPanel,
+    .playerPanel{
+        width: min(48vw, 190px);
+        border-width: 2px;
+        padding: 8px;
+    }
+
+    .enemyPanel{
+        top: 8px;
+        left: 8px;
+    }
+
+    .playerPanel{
+        right: 8px;
+        bottom: 202px;
+    }
+
+    .draggle,
+    .emby{
+        font-size: 10px;
     }
 
     .attackBox,
@@ -442,7 +504,7 @@ canvas{
     .attackTypePanel{
         border-left: 0;
         border-top: 3px solid black;
-        min-height: 42px;
+        min-height: 52px;
     }
 
     .mobileControls{
@@ -455,38 +517,54 @@ canvas{
     }
 }
 
-@media(max-width:640px){
+@media (max-width: 640px){
     .help-toggle{
-        height: 178px;
         right: 12px;
         font-size: 10px;
         padding: 8px 12px;
-        width: 65%;
+    }
+
     .help-panel{
         padding: 12px;
     }
-        width: 35%;
-        font-size: 13px;
-    }
+
     .help-panel h3{
         font-size: 10px;
         padding: 8px;
     }
 
-    .attackBox button{
-        font-size: 10px;
-        padding: 9px 6px;
-    }
     .help-panel p{
         font-size: 8px;
     }
 
-    .battle-prompt-panel h3{
-        font-size: 13px;
+    .attackBox button{
+        font-size: 9px;
+        padding: 8px 6px;
     }
 
-    .battle-prompt-panel p,
+    .battle-prompt-panel{
+        padding: 14px;
+    }
+    
+    .battle-prompt-panel h3{
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+
+    .battle-prompt-panel p{
+        font-size: 10px;
+        margin-bottom: 12px;
+    }
+
+    .battle-prompt-actions{
+        flex-direction: column;
+        gap: 10px;
+    }
+    
     .battle-prompt-actions button{
-        font-size: 8px;
+        font-size: 10px;
+        padding: 10px 12px;
+        min-height: 38px;
+        width: 100%;
     }
 }

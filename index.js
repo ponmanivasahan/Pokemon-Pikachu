@@ -6,15 +6,15 @@ c.webkitImageSmoothingEnabled = false
 c.mozImageSmoothingEnabled = false
 c.msImageSmoothingEnabled = false
 
-const GAME_WIDTH = 1024
-const GAME_HEIGHT = 576
+const GAME_WIDTH = 1580
+const GAME_HEIGHT = 726
 
 canvas.width = GAME_WIDTH
 canvas.height = GAME_HEIGHT
 
 function resizeCanvasDisplay() {
-  const horizontalPadding = 16
-  const verticalPadding = 16
+  const horizontalPadding = 8
+  const verticalPadding = 8
   const maxWidth = window.innerWidth - horizontalPadding
   const maxHeight = window.innerHeight - verticalPadding
   const scale = Math.min(maxWidth / GAME_WIDTH, maxHeight / GAME_HEIGHT, 1)
@@ -31,6 +31,10 @@ function resizeCanvasDisplay() {
 
 resizeCanvasDisplay()
 window.addEventListener('resize', resizeCanvasDisplay)
+
+document.addEventListener('DOMContentLoaded', () => {
+  resizeCanvasDisplay()
+})
 
 const collisionsMap = []
 for (let i = 0; i < collisions.length; i += 70) {
@@ -255,6 +259,10 @@ const battlePromptState = {
   pendingOptions: { type: 'wild' }
 }
 
+function isMobileViewport() {
+  return window.matchMedia('(max-width: 560px)').matches
+}
+
 function ensureBattlePrompt() {
   if (document.querySelector('#battlePromptOverlay')) return
 
@@ -276,12 +284,27 @@ function ensureBattlePrompt() {
     overlay.classList.remove('is-open')
   }
 
-  panel.querySelector('#battlePromptNo').addEventListener('click', closePrompt)
-  panel.querySelector('#battlePromptYes').addEventListener('click', () => {
+  const noBtn = panel.querySelector('#battlePromptNo')
+  const yesBtn = panel.querySelector('#battlePromptYes')
+  
+  const handleClose = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    closePrompt()
+  }
+  const handleBattle = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
     const options = battlePromptState.pendingOptions || { type: 'wild' }
     closePrompt()
     startBattleTransition(options)
-  })
+  }
+  
+  noBtn.addEventListener('click', handleClose)
+  noBtn.addEventListener('touchend', handleClose)
+  
+  yesBtn.addEventListener('click', handleBattle)
+  yesBtn.addEventListener('touchend', handleBattle)
 
   overlay.addEventListener('click', (event) => {
     if (event.target === overlay) closePrompt()
@@ -297,6 +320,7 @@ function openBattlePrompt(options = { type: 'wild' }) {
 }
 
 function startBattleTransition(options = { type: 'wild' }) {
+  if (isMobileViewport()) return
   if (battle.initiated) return
   battle.initiated = true
 
@@ -368,6 +392,7 @@ function animate(timestamp = performance.now()) {
         }) &&
         overlappingArea > (player.width * player.height) / 2
       ) {
+        if (isMobileViewport()) break
         const now = Date.now()
         if (!battlePromptOpen && now - lastBattlePromptAt > 1500) {
           lastBattlePromptAt = now
