@@ -216,6 +216,145 @@ function refreshAttackButtons(){
     })
 }
 
+function handleAttackButtonClick(selectedAction) {
+  if (!isPlayerTurn) return
+
+  if (selectedAction === 'Run') {
+    isPlayerTurn = false
+    setAttackButtonDisabled(true)
+    document.querySelector('#dialogueBox').innerHTML =
+      emby.name + ' ran away safely!'
+    document.querySelector('#dialogueBox').style.display = 'block'
+    queue = [() => exitBattleToMap()]
+    return
+  }
+
+  isPlayerTurn = false
+  setAttackButtonDisabled(true)
+
+  const selectedAttack = attacks[selectedAction]
+  const playerAction = emby.attack({
+    attack: selectedAttack,
+    recipient: draggle,
+    renderedSprites
+  })
+
+  updateHealthDisplay()
+
+  if (playerAction && playerAction.cooldownBlocked) {
+    isPlayerTurn = true
+    setAttackButtonDisabled(false)
+    return
+  }
+
+  if (emby.health <= 0) {
+    queue.push(() => {
+      emby.faint()
+    })
+
+    queue.push(() => {
+      if (getAliveMonstersCount() > 0) {
+        canSwitchMonster = true
+        document.querySelector('#dialogueBox').innerHTML =
+          emby.name + ' fainted! Click here or press 1-3 to switch Pokemon.'
+        document.querySelector('#dialogueBox').style.display = 'block'
+      } else {
+        gsap.to('#overlappingDiv', {
+          opacity: 1,
+          onComplete: () => {
+            cancelAnimationFrame(battleAnimationId)
+            animate()
+            document.querySelector('#userInterface').style.display = 'none'
+            document.querySelector('#partyDisplay').style.display = 'none'
+            gsap.to('#overlappingDiv', { opacity: 0 })
+            battle.initiated = false
+          }
+        })
+      }
+    })
+    return
+  }
+
+  if (draggle.health <= 0) {
+    queue.push(() => {
+      draggle.faint()
+    })
+
+    queue.push(() => {
+      const isTrainerBattle =
+        currentBattleContext && currentBattleContext.type === 'trainer'
+
+      if (isTrainerBattle && trainerEnemyIndex < trainerEnemyParty.length - 1) {
+        trainerEnemyIndex++
+        draggle = trainerEnemyParty[trainerEnemyIndex]
+        draggle.position = { x: 800, y: 100 }
+        draggle.opacity = 1
+        renderedSprites[0] = draggle
+
+        document.querySelector('#userInterface').querySelector('h1').innerHTML =
+          draggle.name
+        document.querySelector('#dialogueBox').innerHTML =
+          'Trainer sent out ' + draggle.name + '!'
+        document.querySelector('#dialogueBox').style.display = 'block'
+        updateHealthDisplay()
+        return
+      }
+
+      battlesWon++
+
+      let xpReward = 30
+      if (isTrainerBattle) {
+        const trainerDef = getTrainerDefinition(currentBattleContext.trainerId)
+        if (
+          trainerDef &&
+          trainerDef.rewards &&
+          typeof trainerDef.rewards.xp === 'number'
+        ) {
+          xpReward = trainerDef.rewards.xp
+        }
+        if (currentBattleContext.trainerId) {
+          defeatedTrainers[currentBattleContext.trainerId] = true
+        }
+      }
+
+      emby.xp += xpReward
+      saveGameState()
+
+      if (emby.xp >= 100) {
+        emby.xp = emby.xp - 100
+        emby.level++
+        document.querySelector('#dialogueBox').innerHTML =
+          'Level Up! ' + emby.name + ' is now level ' + emby.level + '!'
+        document.querySelector('#dialogueBox').style.display = 'block'
+      } else {
+        document.querySelector('#dialogueBox').innerHTML =
+          'Victory! Battles won: ' + battlesWon
+        document.querySelector('#dialogueBox').style.display = 'block'
+      }
+    })
+
+    queue.push(() => {
+      gsap.to('#overlappingDiv', {
+        opacity: 1,
+        onComplete: () => {
+          cancelAnimationFrame(battleAnimationId)
+          animate()
+          document.querySelector('#userInterface').style.display = 'none'
+          document.querySelector('#partyDisplay').style.display = 'none'
+
+          gsap.to('#overlappingDiv', {
+            opacity: 0
+          })
+
+          battle.initiated = false
+        }
+      })
+    })
+    return
+  }
+
+  queueEnemyAttackTurn()
+}
 
 function initBattle(){
     document.querySelector('#userInterface').style.display='block'
