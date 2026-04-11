@@ -86,6 +86,25 @@ class Sprite {
   }
 }
 
+function getAudioTrack(name) {
+  if (typeof window === 'undefined' || !window.audio) return null
+  return window.audio[name] || null
+}
+
+function playAudioTrack(name) {
+  const track = getAudioTrack(name)
+  if (track && typeof track.play === 'function') {
+    track.play()
+  }
+}
+
+function stopAudioTrack(name) {
+  const track = getAudioTrack(name)
+  if (track && typeof track.stop === 'function') {
+    track.stop()
+  }
+}
+
 class Monster extends Sprite {
   constructor({
     position,
@@ -135,8 +154,8 @@ class Monster extends Sprite {
     gsap.to(this, {
       opacity: 0
     })
-    audio.battle.stop()
-    audio.victory.play()
+    stopAudioTrack('battle')
+    playAudioTrack('victory')
   }
 
   getDefenseMultiplier() {
@@ -372,7 +391,7 @@ class Monster extends Sprite {
     dialogueBox.innerHTML = dialogueText
 
     const applyCommonHitEffect = () => {
-      audio.tackleHit.play()
+      playAudioTrack('tackleHit')
       gsap.to(healthBar, {
         width: recipientHealthPercent() + '%'
       })
@@ -421,7 +440,7 @@ class Monster extends Sprite {
 
     switch (attack.name) {
       case 'Fireball':
-        audio.initFireball.play()
+        playAudioTrack('initFireball')
         const fireballImage = new Image()
         fireballImage.src = './images/fireball.png'
         const fireball = new Sprite({
@@ -443,7 +462,7 @@ class Monster extends Sprite {
           x: recipient.position.x,
           y: recipient.position.y,
           onComplete: () => {
-            audio.fireballHit.play()
+            playAudioTrack('fireballHit')
             applyCommonHitEffect()
 
             renderedSprites.splice(1, 1)

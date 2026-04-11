@@ -6,10 +6,8 @@ c.webkitImageSmoothingEnabled = false
 c.mozImageSmoothingEnabled = false
 c.msImageSmoothingEnabled = false
 
-const GAME_WIDTH = 1580
-const GAME_HEIGHT = 726
-// const GAME_WIDTH = 1024
-// const GAME_HEIGHT = 576
+const GAME_WIDTH = 1024
+const GAME_HEIGHT = 576
 
 canvas.width = GAME_WIDTH
 canvas.height = GAME_HEIGHT
