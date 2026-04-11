@@ -32,7 +32,7 @@ window.isTrainerDefeated=function(trainerId){
 }
 
 let playerParty=[]
-let currentPlayerIndex=0
+let currentPartyIndex=0
 let enemyParty=[]
 let currentEnemyIndex=0
 const availableEnemies=['Draggle','Draggle2','Draggle3']
@@ -100,6 +100,123 @@ function exitBattleToMap(){
          }
     })
 }
+
+function initializePlayerParty(){
+    playerParty=[]
+    for(let i=0;i<starterPartyKeys.length;i++){
+        const monsterKey=starterPartyKeys[i]
+        const monsterData=monsters[monsterKey] || monsters.Emby
+        const newMonster=new Monster(monsterData)
+        newMonster.monsterKey=monsterKey
+        newMonster.level=1+i
+        newMonster.xp=0
+        newMonster.maxHealth=newMonster.health
+        playerParty.push(newMonster)
+    }
+    currentPartyIndex=0
+}
+
+function getActivePlayerMonster(){
+    return playerParty[currentPartyIndex]
+}
+
+function switchToNextMonster(){
+    const currentIndex=currentPartyIndex
+    for(let i=1;i<playerParty.length;i++){
+        const nextIndex=(currentIndex+i)%playerParty.length
+        if(playerParty[nextIndex].health>0){
+            currentPartyIndex=nextIndex
+            return playerParty[nextIndex]
+        }
+    }
+    return null
+}
+
+function getAliveMonstersCount(){
+    return playerParty.filter((m)=>m.health>0).length
+}
+
+function ensureValidActiveMonster(){
+    if(!playerParty.length) return
+    if(playerParty[currentPartyIndex] && playerParty[currentPartyIndex].health>0){
+        return
+    }
+    const firstAlive=playerParty.findIndex((m)=>m.health>0)
+    if(firstAlive>0){
+        currentPartyIndex=firstAlive
+    }
+}
+
+function restorePartyIfAllFainted(){
+    if(!playerParty.length) return
+    if(getAliveMonstersCount()>0) return
+
+    playerParty.forEach((monster)=>{
+        monster.health=monster.maxHealth
+        monster.cooldowns={}
+        monster.statusEffects={burn:0,poison:0,stun:0}
+        monster.defenseStage=0
+        monster.defenseBuffTurns=0
+    })
+    currentPartyIndex=0
+}
+
+function getStatusSummary(monster){
+    const parts=[]
+    if(monster.statusEffects.burn>0){
+        parts.push('Burn(' + monster.statusEffects.burn +')')
+    }
+    if(monster.statusEffects.poison>0){
+        parts.push('Poison ('+ monster.statusEffects.stun + ')')
+    }
+    if(monster.statusEffects.stun>0){
+        parts.push('Stun ('+ monster.statusEffects.stun + ')')
+    }
+    if(monster.defenseBuffTurns>0){
+        parts.push('Def +('+ monster.defenseBuffTurns + ' )')
+    }
+    return parts.length>0 ? parts.join('|') : 'Normal'
+}
+
+function setStatusText(elementId,monster){
+    const element=document.querySelector(elementId)
+    const text=getStatusSummary(monster)
+
+    element.innerHTML='Status:' + text
+    element.className='status-text'
+
+    if(monster.statusEffects.burn>0 || monster.statusEffects.poison>0 || monster.statusEffects.stun>0){
+        element.classList.add('is-danger')
+    }
+    else if(monster.defenseBuffTurns>0){
+        element.classList.add('is-buff')
+    }
+}
+
+function updateStatusDisplay(){
+    if(!emby || !draggle) return
+
+    setStatusText('#playerStatusText',emby)
+    setStatusText('#enemyStatusText',draggle)
+}
+
+function refreshAttackButtons(){
+    document.querySelectorAll('#attacksBox button').forEach((button)=>{
+        const attackName=button.dataset.attackName || button.innerText
+        if(attackName==='Run'){
+            button.innerHTML='Run'
+            button.disabled=attackButtonsLocked
+            return
+        }
+        const selectedAttack = attacks[attackName]
+        if(!selectedAttack)return
+        const cooldown=emby && emby.cooldowns ? emby.cooldowns[attackName] || 0 : 0
+        button.innerHTML=cooldown > 0 ? selectedAttack.name + '(CD '+cooldown + ')':selectedAttack.name
+        button.disabled = attackButtonsLocked || cooldown > 0
+    })
+}
+
+
 function initBattle(){
     document.querySelector('#userInterface').style.display='block'
     document.querySelector('#dialogueBox').style.display='none'
