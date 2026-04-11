@@ -356,12 +356,242 @@ function handleAttackButtonClick(selectedAction) {
   queueEnemyAttackTurn()
 }
 
-function initBattle(){
+
+function bindAttackButtonHandlers(){
+    document.querySelectorAll('#attackBox button').forEach((button)=>{
+        button.addEventListener('click',(e)=>{
+            const selectedAttack=attacks[e.currentTarget.dataset.attackName]
+            if(!selectedAttack){
+                if(e.currentTarget.dataset.attackName==='Run'){
+                    document.querySelector('#attackType').innerHTML='Escape'
+                    document.querySelector('#attackType').style.color='#666'
+                }
+                return
+            }
+            document.querySelector('#attackType').innerHTML=selectedAttack.type + (emby.cooldowns[selectedAttack.name] ? ' (CD: ' + emby.cooldowns[selectedAttack.name] + ')' : '')
+            document.querySelector('#attackType').style.color=selectedAttack.color
+        })
+    })
+}
+
+function rebuildAttackButtonsForActiveMonster(){
+    const attacksBox = document.querySelector('#attacksBox')
+    attacksBox.replaceChildren()
+
+    emby.attacks.forEach((attack)=>{
+        const button=document.createElement('button')
+        button.innerHTML=attack.name
+        button.dataset.attackName=attack.name
+        attacksBox.append(button)
+    })
+    const runButton = document.createElement('button')
+  runButton.innerHTML = 'Run'
+  runButton.dataset.attackName = 'Run'
+  attacksBox.append(runButton)
+  
+  bindAttackButtonHandlers()
+  refreshAttackButtons()
+}
+
+function bindAttackButtonHandlers() {
+  document.querySelectorAll('#attacksBox button').forEach((button) => {
+    button.addEventListener('click', (e) => {
+      if (!isPlayerTurn) return
+
+      const selectedAction = e.currentTarget.dataset.attackName
+      if (selectedAction === 'Run') {
+        isPlayerTurn = false
+        setAttackButtonDisabled(true)
+        document.querySelector('#dialogueBox').innerHTML =
+          emby.name + ' ran away safely!'
+        document.querySelector('#dialogueBox').style.display = 'block'
+        queue = [() => exitBattleToMap()]
+        return
+      }
+
+      isPlayerTurn = false
+      setAttackButtonDisabled(true)
+
+      const selectedAttack = attacks[selectedAction]
+      const playerAction = emby.attack({
+        attack: selectedAttack,
+        recipient: draggle,
+        renderedSprites
+      })
+
+      updateHealthDisplay()
+
+      if (playerAction && playerAction.cooldownBlocked) {
+        isPlayerTurn = true
+        setAttackButtonDisabled(false)
+        return
+      }
+
+      if (emby.health <= 0) {
+        queue.push(() => {
+          emby.faint()
+        })
+
+        queue.push(() => {
+          if (getAliveMonstersCount() > 0) {
+            canSwitchMonster = true
+            document.querySelector('#dialogueBox').innerHTML =
+              emby.name + ' fainted! Click here or press 1-3 to switch Pokemon.'
+            document.querySelector('#dialogueBox').style.display = 'block'
+          } else {
+            gsap.to('#overlappingDiv', {
+              opacity: 1,
+              onComplete: () => {
+                cancelAnimationFrame(battleAnimationId)
+                animate()
+                document.querySelector('#userInterface').style.display = 'none'
+                document.querySelector('#partyDisplay').style.display = 'none'
+                gsap.to('#overlappingDiv', { opacity: 0 })
+                battle.initiated = false
+                audio.Map.play()
+              }
+            })
+          }
+        })
+        return
+      }
+
+      if (draggle.health <= 0) {
+        queue.push(() => {
+          draggle.faint()
+        })
+
+        queue.push(() => {
+          const isTrainerBattle =
+            currentBattleContext && currentBattleContext.type === 'trainer'
+
+          if (
+            isTrainerBattle &&
+            trainerEnemyIndex < trainerEnemyParty.length - 1
+          ) {
+            trainerEnemyIndex++
+            draggle = trainerEnemyParty[trainerEnemyIndex]
+            draggle.position = { x: 800, y: 100 }
+            draggle.opacity = 1
+            renderedSprites[0] = draggle
+
+            document
+              .querySelector('#userInterface')
+              .querySelector('h1').innerHTML = draggle.name
+            document.querySelector('#dialogueBox').innerHTML =
+              'Trainer sent out ' + draggle.name + '!'
+            document.querySelector('#dialogueBox').style.display = 'block'
+            updateHealthDisplay()
+            return
+          }
+
+          battlesWon++
+
+          let xpReward = 30
+          if (isTrainerBattle) {
+            const trainerDef = getTrainerDefinition(
+              currentBattleContext.trainerId
+            )
+            if (
+              trainerDef &&
+              trainerDef.rewards &&
+              typeof trainerDef.rewards.xp === 'number'
+            ) {
+              xpReward = trainerDef.rewards.xp
+            }
+            if (currentBattleContext.trainerId) {
+              defeatedTrainers[currentBattleContext.trainerId]
+            }
+          }
+          emby.xp += xpReward
+          saveGameState()
+
+          if (emby.xp >= 100) {
+            emby.xp = emby.xp - 100
+            emby.level++
+            document.querySelector('#dialogueBox').innerHTML =
+              'Level Up! ' + emby.name + ' is now level ' + emby.level + '!'
+            document.querySelector('#dialogueBox').style.display = 'block'
+          } else {
+            document.querySelector('#dialogueBox').innerHTML =
+              'Victory! Battles won: ' + battlesWon
+            document.querySelector('#dialogueBox').style.display = 'block'
+          }
+        })
+
+        queue.push(() => {
+          gsap.to('#overlappingDiv', {
+            opacity: 1,
+            onComplete: () => {
+              cancelAnimationFrame(battleAnimationId)
+              animate()
+              document.querySelector('#userInterface').style.display = 'none'
+              document.querySelector('#partyDisplay').style.display = 'none'
+
+              gsap.to('#overlappingDiv', {
+                opacity: 0
+              })
+
+              battle.initiated = false
+              audio.Map.play()
+            }
+          })
+        })
+        return
+      }
+      queueEnemyAttackTurn()
+    })
+
+    button.addEventListener('mouseenter', (e) => {
+      const selectedAttack = attacks[e.currentTarget.dataset.attackName]
+      if (!selectedAttack) {
+        if (e.currentTarget.dataset.attackName === 'Run') {
+          document.querySelector('#attackType').innerHTML = 'Escape'
+          document.querySelector('#attackType').style.color = '#666'
+        }
+        return
+      }
+
+      document.querySelector('#attackType').innerHTML =
+        selectedAttack.type +
+        (emby.cooldowns[selectedAttack.name]
+          ? ' (CD: ' + emby.cooldowns[selectedAttack.name] + ')'
+          : '')
+      document.querySelector('#attackType').style.color = selectedAttack.color
+    })
+  })
+}
+
+
+function initBattle(options){
+    const battleOptions=options || {type:'wild'}
+    currentBattleContext={
+        type:battleOptions.type || 'wild',
+        trainerId:battleOptions.trainerId || null
+    }
+    trainerEnemyParty=[]
+    trainerEnemyIndex=0
     document.querySelector('#userInterface').style.display='block'
+    document.querySelector('#partyDisplay').style.display='block'
     document.querySelector('#dialogueBox').style.display='none'
     document.querySelector('#enemyHealthBar').style.width='100%'
     document.querySelector('#playerHealthBar').style.width='100%'
      document.querySelector('#attackBox').replaceChildren()
+
+     if(playerParty.length===0){
+        if(!hasLoadedSave){
+            hasLoadedSave=loadGameState()
+        }
+        initializePlayerParty()
+     }
+     restorePartyIfAllFainted()
+     ensureValidActiveMonster()
+
+     if(currentBattleContext.type==='trainer'){
+        const trainerDef=getTrainerDefinition(currentBattleContext.trainerId)
+        
+
+     }
      draggle=new Monster(monsters.Draggle)
      emby=new Monster(monsters.Emby)
      renderSprites=[draggle,emby]
