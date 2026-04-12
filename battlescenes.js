@@ -127,6 +127,11 @@ function setStyleIfExists(selector, property, value) {
   }
 }
 
+function playMapAudioSafely() {
+  if (typeof audio === 'undefined') return
+  audio.Map?.play?.()
+}
+
 function setBattleModeActive(active) {
   if (!document.body) return
   document.body.classList.toggle('is-in-battle', active)
@@ -135,10 +140,10 @@ function setBattleModeActive(active) {
 function getBattleMonsterPositions() {
   const isMobile = window.matchMedia('(max-width: 560px)').matches
 
-  const enemyX = Math.round(canvas.width * (isMobile ? 0.64 : 0.67))
-  const enemyY = Math.round(canvas.height * (isMobile ? 0.1 : 0.14))
-  const playerX = Math.round(canvas.width * (isMobile ? 0.16 : 0.2))
-  const playerY = Math.round(canvas.height * (isMobile ? 0.44 : 0.48))
+  const enemyX = Math.round(canvas.width * (isMobile ? 0.66 : 0.74))
+  const enemyY = Math.round(canvas.height * (isMobile ? 0.12 : 0.2))
+  const playerX = Math.round(canvas.width * (isMobile ? 0.2 : 0.27))
+  const playerY = Math.round(canvas.height * (isMobile ? 0.5 : 0.56))
 
   return {
     enemy: { x: enemyX, y: enemyY },
@@ -172,7 +177,7 @@ function exitBattleToMap() {
       })
 
       battle.initiated = false
-      audio.Map.play()
+      playMapAudioSafely()
     }
   })
 }
@@ -364,7 +369,7 @@ function handleAttackButtonClick(selectedAction) {
             gsap.to('#overlappingDiv', { opacity: 0 })
             battle.initiated = false
             setBattleModeActive(false)
-            audio.Map.play()
+            playMapAudioSafely()
           }
         })
       }
@@ -445,7 +450,7 @@ function handleAttackButtonClick(selectedAction) {
 
           battle.initiated = false
           setBattleModeActive(false)
-          audio.Map.play()
+          playMapAudioSafely()
         }
       })
     })
@@ -565,7 +570,7 @@ function bindAttackButtonHandlers() {
                 gsap.to('#overlappingDiv', { opacity: 0 })
                 battle.initiated = false
                 setBattleModeActive(false)
-                audio.Map.play()
+                playMapAudioSafely()
               }
             })
           }
@@ -617,7 +622,7 @@ function bindAttackButtonHandlers() {
               xpReward = trainerDef.rewards.xp
             }
             if (currentBattleContext.trainerId) {
-              defeatedTrainers[currentBattleContext.trainerId]
+              defeatedTrainers[currentBattleContext.trainerId] = true
             }
           }
           emby.xp += xpReward
@@ -651,7 +656,7 @@ function bindAttackButtonHandlers() {
 
               battle.initiated = false
               setBattleModeActive(false)
-              audio.Map.play()
+              playMapAudioSafely()
             }
           })
         })
@@ -823,7 +828,7 @@ function queueEnemyAttackTurn() {
 
               battle.initiated = false
               setBattleModeActive(false)
-              audio.Map.play()
+              playMapAudioSafely()
             }
           })
         }
@@ -1008,6 +1013,9 @@ document.querySelector('#dialogueBox').addEventListener('click', (e) => {
     const nextMonster = switchToNextMonster()
     if (nextMonster) {
       activatePartyMonster(currentPartyIndex)
+      e.currentTarget.style.display = 'none'
+    } else {
+      canSwitchMonster = false
       e.currentTarget.style.display = 'none'
     }
   } else if (queue.length > 0) {

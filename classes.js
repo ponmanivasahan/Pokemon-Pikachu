@@ -273,6 +273,7 @@ class Monster extends Sprite {
         ' is on cooldown for ' +
         this.cooldowns[attack.name] +
         ' more turn(s)!'
+      this.turnStartProcessed = false
       return { acted: false, cooldownBlocked: true }
     }
 

@@ -36,6 +36,24 @@ document.addEventListener('DOMContentLoaded', () => {
   resizeCanvasDisplay()
 })
 
+let hasActivatedAudio = false
+function activateAudioOnFirstGesture() {
+  if (hasActivatedAudio) return
+  if (typeof audio === 'undefined' || !audio.Map?.play) return
+
+  hasActivatedAudio = true
+  try {
+    if (!battle.initiated) {
+      audio.Map.play()
+    }
+  } catch (error) {
+    console.warn('Audio activation failed:', error)
+  }
+}
+
+window.addEventListener('pointerdown', activateAudioOnFirstGesture, { once: true })
+window.addEventListener('keydown', activateAudioOnFirstGesture, { once: true })
+
 const collisionsMap = []
 for (let i = 0; i < collisions.length; i += 70) {
   collisionsMap.push(collisions.slice(i, 70 + i))
