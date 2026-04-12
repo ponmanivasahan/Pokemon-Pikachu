@@ -947,7 +947,6 @@ if (!hasLoadedSave) {
 if (playerParty.length === 0) {
   initializePlayerParty()
 }
-animate()
 
 window.addEventListener('resize', () => {
   if (!battle.initiated) return

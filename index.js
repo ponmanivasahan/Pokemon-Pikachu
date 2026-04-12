@@ -386,9 +386,10 @@ function animate(timestamp = performance.now()) {
   const frameMovement = PLAYER_SPEED * deltaSeconds
 
   worldAnimationId = window.requestAnimationFrame(animate)
-  renderables.forEach((renderable) => renderable.draw())
 
   if (battle.initiated) return
+
+  renderables.forEach((renderable) => renderable.draw())
 
   if (keys.w.pressed || keys.a.pressed || keys.s.pressed || keys.d.pressed) {
     for (let i = 0; i < battleZoneBoundaries.length; i++) {
@@ -549,9 +550,63 @@ function animate(timestamp = performance.now()) {
 
 animate()
 
+function refreshInteractionTarget() {
+  const interactionDistance = 6
+  let characterOffset = { x: 0, y: 0 }
+
+  if (lastKey === 'w') characterOffset = { x: 0, y: interactionDistance }
+  else if (lastKey === 'a') characterOffset = { x: interactionDistance, y: 0 }
+  else if (lastKey === 's') characterOffset = { x: 0, y: -interactionDistance }
+  else if (lastKey === 'd') characterOffset = { x: -interactionDistance, y: 0 }
+
+  checkForCharacterCollision({
+    characters,
+    player,
+    characterOffset
+  })
+
+  if (player.interactionAsset) return
+
+  const playerCenter = {
+    x: player.position.x + player.width / 2,
+    y: player.position.y + player.height / 2
+  }
+
+  let bestMatch = null
+  let bestDistance = Infinity
+
+  for (let i = 0; i < characters.length; i++) {
+    const character = characters[i]
+    const charCenter = {
+      x: character.position.x + character.width / 2,
+      y: character.position.y + character.height / 2
+    }
+
+    const dx = charCenter.x - playerCenter.x
+    const dy = charCenter.y - playerCenter.y
+    const distance = Math.hypot(dx, dy)
+
+    if (distance > 110) continue
+
+    if (distance < bestDistance) {
+      bestDistance = distance
+      bestMatch = character
+    }
+  }
+
+  if (bestMatch) {
+    player.interactionAsset = bestMatch
+  }
+}
+
 window.addEventListener('keydown', (e) => {
   if (player.isInteracting) {
-    if (e.key === ' ') {
+    if (e.key === ' ' || e.code === 'Space') {
+      if (!player.interactionAsset) {
+        player.isInteracting = false
+        document.querySelector('#characterDialogueBox').style.display = 'none'
+        return
+      }
       player.interactionAsset.dialogueIndex++
 
       const { dialogueIndex, dialogue } = player.interactionAsset
@@ -590,6 +645,8 @@ window.addEventListener('keydown', (e) => {
 
   switch (e.key) {
     case ' ':
+    case 'Spacebar':
+      refreshInteractionTarget()
       if (!player.interactionAsset) return
       document.querySelector('#characterDialogueBox').innerHTML =
         player.interactionAsset.dialogue[0]

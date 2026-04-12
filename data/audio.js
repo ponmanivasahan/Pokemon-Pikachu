@@ -1,32 +1,34 @@
 const audio={
     Map:new Howl({
-        src:'./audioFiles/map.wav',
-        html5:true,
-        volume:0.1
+        src:['./audioFiles/map.wav'],
+        loop:true,
+        preload:true,
+        volume:0.3
     }),
     initBattle:new Howl({
-        src:'/audioFiles/initBattle.wav',
-        html5:true,
+        src:['./audioFiles/initBattle.wav'],
+        preload:true,
         volume:0.1
     }),
     battle:new Howl({
-        src:'./audioFiles/battle.mp3',
-        html5:true,
-        volume:0.1
+        src:['./audioFiles/battle.mp3'],
+        loop:true,
+        preload:true,
+        volume:0.2
     }),
     tackleHit:new Howl({
-        src:'./audioFiles/tackleHit.wav',
-        html5:true,
-        volume:0.1
+        src:['./audioFiles/tackleHit.wav'],
+        preload:true,
+        volume:0.2
     }),
     fireballHit:new Howl({
-        src:'./audioFiles/initFireball.wav',
-        html5:true,
-        volume:0.1
+        src:['./audioFiles/initFireball.wav'],
+        preload:true,
+        volume:0.2
     }),
     victory:new Howl({
-        src:'./audio/victory.wav',
-        html5:true,
-        volume:0.1
+        src:['./audioFiles/victory.wav'],
+        preload:true,
+        volume:0.2
     })
 }
