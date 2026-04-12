@@ -46,5 +46,7 @@ Pokemon Pikachu is a browser game built with HTML, CSS, JavaScript, Canvas, and 
 - GSAP
 - Howler.js
 
+Note:
+Mobile responsiveness not there for mobile because it was unable to render sprites for the battle field in the mobile. I tried a lot.
  Credits for help:
  sprites and audio credits:https://drive.google.com/drive/folders/1cbdyXiO7IlIDgSDul6yMvFrJ-acQgJjf  -->
