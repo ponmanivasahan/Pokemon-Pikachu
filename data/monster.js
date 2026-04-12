@@ -1,7 +1,7 @@
 const monsters = {
     Emby:{
         position:{
-            x:250,
+            x:280,
             y:325
         },
         image:{
